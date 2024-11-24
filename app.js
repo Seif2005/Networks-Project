@@ -17,6 +17,13 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.get('/',function(req,res){
   res.render('index',{title:"express"})
 });
+//receiving the data
+let data;
+app.post('/',function(req,res){
+  data = req.body.user;
+  console.log(data);
+  res.render('index',{title:"express"})
+});
 
 //the port
 app.listen(3000);
