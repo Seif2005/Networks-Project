@@ -15,7 +15,8 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-//our code is here
+
+
 /*
 app.get('/',function(req,res){
   res.render('index',{title:"express"})
@@ -28,34 +29,105 @@ app.post('/',function(req,res){
   res.render('index',{title:"express"})
 });
 */
+/*
 
 app.get('/',function(req,res){
-  res.render('login')
+  res.render('bali')
+});
+app.get('/biko',function(req,res){
+  res.render('home')
 });
 //working with JSONs
-/*
+
 let x = {name:'Seif',username:'user1',pass:"pass1"};
 let y = JSON.stringify(x);
 let z = JSON.parse(y);
-console.log(x);
+console.log(x.name);
 console.log(y);
-console.log(z);
-//write into json file
-fs.writeFileSync('users.json',y);
-let data = fs.readFileSync('users.json')
-let dataReturned = JSON.parse(data)
-console.log(dataReturned)
 */
+
+
+//our code is here
 //connecting to MongoDB
-var MongoClient = require('mongodb').MongoClient;
-MongoClient.connect("mongodb://localhost:27017",function(err,client){
-  if(err){
-    throw err;
-  }
-  var db = client.db('TestDB');
-  db.collection('FirstCollection').insertOne({id:1,firstName:'Seif',lastName:'Hamdy'});
+
+const MongoClient = require('mongodb').MongoClient;
+
+(async () => {
+    try {
+        const client = await MongoClient.connect("mongodb://localhost:27017");
+        const db = client.db('TestDB');
+        await db.collection('FirstCollection').insertOne({
+            id: 1,
+            firstName: 'Seif',
+            lastName: 'Hamdy'
+        });
+    } catch (err) {
+        throw err;
+    }
+})();
+
+app.get('/annapurna', function(req, res) {
+  res.render('annapurna');
 });
 
+app.get('/bali', function(req, res) {
+  res.render('bali');
+});
+
+app.get('/cities', function(req, res) {
+  res.render('cities');
+});
+
+app.get('/hiking', function(req, res) {
+  res.render('hiking');
+});
+
+app.get('/home', function(req, res) {
+  res.render('home');
+});
+
+app.get('/inca', function(req, res) {
+  res.render('inca');
+});
+
+app.get('/index', function(req, res) {
+  res.render('index');
+});
+
+app.get('/islands', function(req, res) {
+  res.render('islands');
+});
+
+app.get('/', function(req, res) {
+  res.render('login');
+});
+
+app.get('/paris', function(req, res) {
+  res.render('paris');
+});
+
+app.get('/registration', function(req, res) {
+  res.render('registration');
+});
+
+app.get('/rome', function(req, res) {
+  res.render('rome');
+});
+
+app.get('/santorini', function(req, res) {
+  res.render('santorini');
+});
+
+app.get('/searchresults', function(req, res) {
+  res.render('searchresults');
+});
+
+app.get('/wanttogo', function(req, res) {
+  res.render('wanttogo');
+});
+
+//close DB Connection
+client.close();
 //the port
 app.listen(3000);
 
