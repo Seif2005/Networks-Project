@@ -18,6 +18,17 @@
             top:50px;
             color: white;
         }
+        .error{
+            color:red;
+            font-size: 30px;
+        }
+        .noAcc{
+            color:aliceblue;
+            
+        }
+        .noAcc:hover{
+            color: aliceblue;
+        }
     </style>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -42,7 +53,9 @@
             <input type="submit" value="Login">
         </form>
         <br>
-        <a href="registration">I dont have an account</a>
+        <a href="registration" class="noAcc">I dont have an account</a>
+        <br>
+        <div class = "error"><%= error %></div>
     </div>
 </body>
 </html>

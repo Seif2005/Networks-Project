@@ -9,62 +9,26 @@ var app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-
 app.use(express.static(path.join(__dirname, 'public')));
 
-
-
-/*
-app.get('/',function(req,res){
-  res.render('index',{title:"express"})
-});
-//receiving the data
-let data;
-app.post('/',function(req,res){
-  data = req.body.user;
-  console.log(data);
-  res.render('index',{title:"express"})
-});
-*/
-/*
-
-app.get('/',function(req,res){
-  res.render('bali')
-});
-app.get('/biko',function(req,res){
-  res.render('home')
-});
-//working with JSONs
-
-let x = {name:'Seif',username:'user1',pass:"pass1"};
-let y = JSON.stringify(x);
-let z = JSON.parse(y);
-console.log(x.name);
-console.log(y);
-*/
-
-
-//our code is here
-//connecting to MongoDB
-
 const MongoClient = require('mongodb').MongoClient;
+let db;
+let client;
 
-(async () => {
+async function connectToDatabase() {
     try {
-        const client = await MongoClient.connect("mongodb://localhost:27017");
-        const db = client.db('TestDB');
-        await db.collection('FirstCollection').insertOne({
-            id: 1,
-            firstName: 'Seif',
-            lastName: 'Hamdy'
-        });
+        client = await MongoClient.connect("mongodb://localhost:27017", { useNewUrlParser: true, useUnifiedTopology: true });
+        db = client.db('myDB');
+        console.log("Connected to database:", db.databaseName);
     } catch (err) {
-        throw err;
+        console.error("Database connection error:", err);
+        process.exit(1);
     }
-})();
+}
+
+connectToDatabase();
 
 app.get('/annapurna', function(req, res) {
   res.render('annapurna');
@@ -91,7 +55,7 @@ app.get('/inca', function(req, res) {
 });
 
 app.get('/index', function(req, res) {
-  res.render('index');
+  res.render('index',{title:"Hi"});
 });
 
 app.get('/islands', function(req, res) {
@@ -99,7 +63,7 @@ app.get('/islands', function(req, res) {
 });
 
 app.get('/', function(req, res) {
-  res.render('login');
+  res.render('login',{error:""});
 });
 
 app.get('/paris', function(req, res) {
@@ -126,9 +90,37 @@ app.get('/wanttogo', function(req, res) {
   res.render('wanttogo');
 });
 
-//close DB Connection
-client.close();
+app.post('/', async function(req, res) {
+  let username = req.body.username;
+  let password = req.body.password;
+  let valid;
+
+  try {
+    valid = await db.collection('myCollection').findOne({ "username": username, "password": password });
+  } catch (err) {
+    console.error("Error during database operation:", err);
+    return res.render('login', { error: "Database error!" });
+  }
+
+  if (valid != null) { // record is in database
+    res.redirect('home');
+  } else { // not logged in
+    res.render('login', { error: "Invalid Account!" });
+  }
+});
+
 //the port
-app.listen(3000);
+app.listen(3000, () => {
+    console.log("Server is running on port 3000");
+});
+
+process.on('SIGINT', () => {
+    if (client) {
+        client.close(() => {
+            console.log('MongoDB client closed');
+            process.exit(0);
+        });
+    }
+});
 
 module.exports = app;
