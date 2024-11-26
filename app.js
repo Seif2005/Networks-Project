@@ -109,6 +109,27 @@ app.post('/', async function(req, res) {
   }
 });
 
+app.post('/registration', async function(req, res) {
+  let username1 =req.body.username;
+  let password1  = req.body.password;
+
+  try {
+    let UserExist = await db.collection('myCollection').findOne({ username: username1 });
+    if (UserExist) {
+      return res.render('registration');
+    }
+
+    await db.collection('myCollection').insertOne({ username: username1, password: password1 });
+    console.log("User registered:", username1);
+
+    res.redirect('/');
+  } catch (err) {
+    console.error("Error during registration:", err);
+    res.render('registration');
+  }
+});
+
+
 //the port
 app.listen(3000, () => {
     console.log("Server is running on port 3000");
