@@ -29,6 +29,19 @@ async function connectToDatabase() {
 }
 
 connectToDatabase();
+//vars to use
+let searchResult = "";
+let goToLocation = ''
+let searchedImageSrc = '';
+//helper functions
+function findSubstring(word, array) {
+  for (let str of array) {
+      if (str.includes(word)) {
+          return str; // Return the string that contains 'word' as a substring
+      }
+  }
+  return 'None'; // If no match is found, return 'None'
+}
 
 app.get('/annapurna', function(req, res) {
   res.render('annapurna');
@@ -83,7 +96,11 @@ app.get('/santorini', function(req, res) {
 });
 
 app.get('/searchresults', function(req, res) {
-  res.render('searchresults');
+  res.render('searchresults',{searchResult:searchResult,searchedImageSrc:searchedImageSrc,goToLocation:goToLocation});
+});
+
+app.get('/searchfail', function(req, res) {
+  res.render('searchfail');
 });
 
 app.get('/wanttogo', function(req, res) {
@@ -128,7 +145,44 @@ app.post('/registration', async function(req, res) {
     res.render('registration');
   }
 });
-
+//search feature
+app.post('/search',async function (req,res) {
+  //res.redirect('/searchfail');
+  let searched = req.body.Search.toLowerCase();
+  let locationsAvailable = ['annapurna','bali','inca','paris','rome','santorini'];
+  let wanted = findSubstring(searched,locationsAvailable);
+  //returns no match
+  if(wanted=='None'){
+    res.redirect('/searchfail');
+  }else{
+    if(wanted=='annapurna'){
+      searchResult = "Annapurna"
+      searchedImageSrc="/annapurna.png"
+      goToLocation = '/annapurna'
+    }else if(wanted=='bali'){
+      searchResult = "Bali"
+      searchedImageSrc="/bali.png"
+      goToLocation = '/bali'
+    }else if(wanted=='inca'){
+      searchResult = "Inca"
+      searchedImageSrc="/inca.png"
+      goToLocation = '/inca'
+    }else if(wanted=='paris'){
+      searchResult = "Paris"
+      searchedImageSrc="/paris.png"
+      goToLocation = '/paris'
+    }else if(wanted=='rome'){
+      searchResult = "Rome"
+      searchedImageSrc="/rome.png"
+      goToLocation = '/rome'
+    }else if(wanted=='santorini'){
+      searchResult = "Santorini"
+      searchedImageSrc="/santorini.png"
+      goToLocation = '/santorini'
+    }
+    return res.redirect('/searchresults');
+  }
+})
 
 //the port
 app.listen(3000, () => {

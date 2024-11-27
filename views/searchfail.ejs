@@ -13,14 +13,6 @@
             text-align: center;
             -webkit-text-stroke: 1px blue;
         }
-        .locationPage {
-            position: relative;
-            left: -7px;
-            margin-top: 10px;
-        }
-        .results{
-            text-align: center;
-        }
     </style>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -46,14 +38,7 @@
             </form>
         </div>
     </nav>
-    <h1><%=searchResult%></h1>
-    <div class="results">
-        <div class="container1">
-            <img id="image" src=<%=searchedImageSrc%> width="193" height="300">
-        </div>
-        <div class="locationPage">
-            <button onclick="location.href = '<%= goToLocation %>';" id="rome" class="btn btn-secondary ml-3">View Location</button>
-        </div>
-    </div>
+    <h1 class="results">Not Found</h1>
+    
 </body>
 </html>
