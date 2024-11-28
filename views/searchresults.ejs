@@ -11,7 +11,17 @@
         h1 {
             color: white;
             text-align: center;
-            -webkit-text-stroke: 1px blue;
+            -webkit-text-stroke: 1px rgb(255, 0, 0);
+        }
+        h2 {
+            color: white;
+            -webkit-text-stroke: 1px rgb(0, 0, 255);
+        }
+        .locationPage {
+            position: relative;
+        }
+        .resultValue{
+            text-align: center;
         }
     </style>
     <meta charset="UTF-8">
@@ -38,5 +48,19 @@
             </form>
         </div>
     </nav>
+    <% if (searchResults.length==0) { %>
+        <h1>Not Found</h1>
+        <% } %>
+    <% for (let i = 0; i < searchResults.length; i++) { %>
+        <div class="resultValue">
+            <h2><%=searchResults[i].searchResult%></h2>
+            <div class="container1">
+                <img id="image" src=<%=searchResults[i].searchedImageSrc%> width="193" height="300">
+            </div>
+            <div class="locationPage">
+                <button onclick="location.href = '<%= searchResults[i].goToLocation %>';" id="rome" class="btn btn-secondary ml-3">View <%=searchResults[i].searchResult%></button>
+            </div>
+        </div>
+    <% } %>
 </body>
 </html>

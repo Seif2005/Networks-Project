@@ -29,6 +29,21 @@ async function connectToDatabase() {
 }
 
 connectToDatabase();
+//vars to use
+let searchResults = [];
+//helper functions
+function findSubstring(word, array) {
+  let destinations = [];
+  if(word.length==0){
+    return destinations;
+  }
+  for (let str of array) {
+      if (str.includes(word)) {
+          destinations.push(str)
+      }
+  }
+  return destinations;
+}
 
 app.get('/annapurna', function(req, res) {
   res.render('annapurna');
@@ -52,10 +67,6 @@ app.get('/home', function(req, res) {
 
 app.get('/inca', function(req, res) {
   res.render('inca');
-});
-
-app.get('/index', function(req, res) {
-  res.render('index',{title:"Hi"});
 });
 
 app.get('/islands', function(req, res) {
@@ -83,7 +94,7 @@ app.get('/santorini', function(req, res) {
 });
 
 app.get('/searchresults', function(req, res) {
-  res.render('searchresults');
+  res.render('searchresults',{searchResults:searchResults});
 });
 
 app.get('/wanttogo', function(req, res) {
@@ -128,7 +139,64 @@ app.post('/registration', async function(req, res) {
     res.render('registration');
   }
 });
-
+//search feature
+app.post('/search',async function (req,res) {
+  //res.redirect('/searchfail');
+  let searched = req.body.Search.toLowerCase();
+  let locationsAvailable = ['annapurna','bali','inca','paris','rome','santorini'];
+  let funcRes = findSubstring(searched,locationsAvailable);
+  //returns no match
+  if(funcRes.length==0){
+    searchResults = [];
+    //console.log(searchResults);
+    res.redirect('/searchresults');
+  }else{
+    let singleRes;
+    searchResults = [];
+    for (let wanted of funcRes){
+      if (wanted === 'annapurna') {
+        singleRes = {
+          searchResult: "Annapurna",
+          searchedImageSrc: "/annapurna.png",
+          goToLocation: "/annapurna"
+        };
+      } else if (wanted === 'bali') {
+        singleRes = {
+          searchResult: "Bali",
+          searchedImageSrc: "/bali.png",
+          goToLocation: "/bali"
+        };
+      } else if (wanted === 'inca') {
+        singleRes = {
+          searchResult: "Inca",
+          searchedImageSrc: "/inca.png",
+          goToLocation: "/inca"
+        };
+      } else if (wanted === 'paris') {
+        singleRes = {
+          searchResult: "Paris",
+          searchedImageSrc: "/paris.png",
+          goToLocation: "/paris"
+        };
+      } else if (wanted === 'rome') {
+        singleRes = {
+          searchResult: "Rome",
+          searchedImageSrc: "/rome.png",
+          goToLocation: "/rome"
+        };
+      } else if (wanted === 'santorini') {
+        singleRes = {
+          searchResult: "Santorini",
+          searchedImageSrc: "/santorini.png",
+          goToLocation: "/santorini"
+        };
+      }
+      searchResults.push(singleRes);
+    }
+    //console.log(searchResults);
+    return res.redirect('/searchresults');
+  }
+});
 
 //the port
 app.listen(3000, () => {
