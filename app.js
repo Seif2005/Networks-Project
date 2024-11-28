@@ -30,17 +30,19 @@ async function connectToDatabase() {
 
 connectToDatabase();
 //vars to use
-let searchResult = "";
-let goToLocation = ''
-let searchedImageSrc = '';
+let searchResults = [];
 //helper functions
 function findSubstring(word, array) {
+  let destinations = [];
+  if(word.length==0){
+    return destinations;
+  }
   for (let str of array) {
       if (str.includes(word)) {
-          return str; // Return the string that contains 'word' as a substring
+          destinations.push(str)
       }
   }
-  return 'None'; // If no match is found, return 'None'
+  return destinations;
 }
 
 app.get('/annapurna', function(req, res) {
@@ -65,10 +67,6 @@ app.get('/home', function(req, res) {
 
 app.get('/inca', function(req, res) {
   res.render('inca');
-});
-
-app.get('/index', function(req, res) {
-  res.render('index',{title:"Hi"});
 });
 
 app.get('/islands', function(req, res) {
@@ -96,11 +94,7 @@ app.get('/santorini', function(req, res) {
 });
 
 app.get('/searchresults', function(req, res) {
-  res.render('searchresults',{searchResult:searchResult,searchedImageSrc:searchedImageSrc,goToLocation:goToLocation});
-});
-
-app.get('/searchfail', function(req, res) {
-  res.render('searchfail');
+  res.render('searchresults',{searchResults:searchResults});
 });
 
 app.get('/wanttogo', function(req, res) {
@@ -150,39 +144,59 @@ app.post('/search',async function (req,res) {
   //res.redirect('/searchfail');
   let searched = req.body.Search.toLowerCase();
   let locationsAvailable = ['annapurna','bali','inca','paris','rome','santorini'];
-  let wanted = findSubstring(searched,locationsAvailable);
+  let funcRes = findSubstring(searched,locationsAvailable);
   //returns no match
-  if(wanted=='None'){
-    res.redirect('/searchfail');
+  if(funcRes.length==0){
+    searchResults = [];
+    //console.log(searchResults);
+    res.redirect('/searchresults');
   }else{
-    if(wanted=='annapurna'){
-      searchResult = "Annapurna"
-      searchedImageSrc="/annapurna.png"
-      goToLocation = '/annapurna'
-    }else if(wanted=='bali'){
-      searchResult = "Bali"
-      searchedImageSrc="/bali.png"
-      goToLocation = '/bali'
-    }else if(wanted=='inca'){
-      searchResult = "Inca"
-      searchedImageSrc="/inca.png"
-      goToLocation = '/inca'
-    }else if(wanted=='paris'){
-      searchResult = "Paris"
-      searchedImageSrc="/paris.png"
-      goToLocation = '/paris'
-    }else if(wanted=='rome'){
-      searchResult = "Rome"
-      searchedImageSrc="/rome.png"
-      goToLocation = '/rome'
-    }else if(wanted=='santorini'){
-      searchResult = "Santorini"
-      searchedImageSrc="/santorini.png"
-      goToLocation = '/santorini'
+    let singleRes;
+    searchResults = [];
+    for (let wanted of funcRes){
+      if (wanted === 'annapurna') {
+        singleRes = {
+          searchResult: "Annapurna",
+          searchedImageSrc: "/annapurna.png",
+          goToLocation: "/annapurna"
+        };
+      } else if (wanted === 'bali') {
+        singleRes = {
+          searchResult: "Bali",
+          searchedImageSrc: "/bali.png",
+          goToLocation: "/bali"
+        };
+      } else if (wanted === 'inca') {
+        singleRes = {
+          searchResult: "Inca",
+          searchedImageSrc: "/inca.png",
+          goToLocation: "/inca"
+        };
+      } else if (wanted === 'paris') {
+        singleRes = {
+          searchResult: "Paris",
+          searchedImageSrc: "/paris.png",
+          goToLocation: "/paris"
+        };
+      } else if (wanted === 'rome') {
+        singleRes = {
+          searchResult: "Rome",
+          searchedImageSrc: "/rome.png",
+          goToLocation: "/rome"
+        };
+      } else if (wanted === 'santorini') {
+        singleRes = {
+          searchResult: "Santorini",
+          searchedImageSrc: "/santorini.png",
+          goToLocation: "/santorini"
+        };
+      }
+      searchResults.push(singleRes);
     }
+    //console.log(searchResults);
     return res.redirect('/searchresults');
   }
-})
+});
 
 //the port
 app.listen(3000, () => {
