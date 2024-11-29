@@ -63,7 +63,8 @@ app.get('/islands', function(req, res) {
 });
 
 app.get('/', function(req, res) {
-  res.render('login',{error:""});
+  let message = req.query.message || "";
+  res.render('login',{error:"",message});
 });
 
 app.get('/paris', function(req, res) {
@@ -71,7 +72,7 @@ app.get('/paris', function(req, res) {
 });
 
 app.get('/registration', function(req, res) {
-  res.render('registration');
+  res.render('registration',{error:""});
 });
 
 app.get('/rome', function(req, res) {
@@ -95,17 +96,20 @@ app.post('/', async function(req, res) {
   let password = req.body.password;
   let valid;
 
+  if(!username || !password){
+    return res.render('login', { error: "Please enter username and password" ,message:""});
+  }
   try {
     valid = await db.collection('myCollection').findOne({ "username": username, "password": password });
   } catch (err) {
     console.error("Error during database operation:", err);
-    return res.render('login', { error: "Database error!" });
+    return res.render('login', { error: "Database error!" ,message:""});
   }
 
   if (valid != null) { // record is in database
     res.redirect('home');
   } else { // not logged in
-    res.render('login', { error: "Invalid Account!" });
+    res.render('login', { error: "Invalid Account!",message:"" });
   }
 });
 
@@ -113,16 +117,20 @@ app.post('/registration', async function(req, res) {
   let username1 =req.body.username;
   let password1  = req.body.password;
 
+  if(!username1 || !password1){
+    return res.render('registration', { error: "Please enter username and password" });
+  }
   try {
     let UserExist = await db.collection('myCollection').findOne({ username: username1 });
     if (UserExist) {
-      return res.render('registration');
+      return res.render('registration', { error: "Username already exists!" });
     }
 
     await db.collection('myCollection').insertOne({ username: username1, password: password1 });
     console.log("User registered:", username1);
 
-    res.redirect('/');
+    res.redirect('/?message=Registered successfully, please login');
+    //res.redirect('/');
   } catch (err) {
     console.error("Error during registration:", err);
     res.render('registration');
