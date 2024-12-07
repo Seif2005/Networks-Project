@@ -1,7 +1,9 @@
 //importing packages
 var express = require('express');
 var path = require('path');
+const session = require('express-session');
 var fs = require('fs');
+const { Console } = require('console');
 
 var app = express();
 
@@ -29,6 +31,13 @@ async function connectToDatabase() {
 }
 
 connectToDatabase();
+// Session middleware
+app.use(session({
+  secret: 'your_secret_key',
+  resave: false,
+  saveUninitialized: true,
+  cookie: { secure: false }
+}));
 //vars to use
 let searchResults = [];
 //helper functions
@@ -118,6 +127,8 @@ app.post('/', async function(req, res) {
   }
 
   if (valid != null) { // record is in database
+    req.session.username = username;
+    console.log("Session Username: "+req.session.username);
     res.redirect('home');
   } else { // not logged in
     res.render('login', { error: "Invalid Account!",message:"" });
