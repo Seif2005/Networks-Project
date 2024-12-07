@@ -70,8 +70,11 @@ app.get('/hiking', function(req, res) {
   res.render('hiking');
 });
 
-app.get('/home', function(req, res) {
+app.get('/home', async function(req, res) {
   res.render('home');
+  const user = await db.collection('myCollection').findOne({ listUsername: req.session.username });
+  // Print the wantToGoList in the console
+  console.log('Want-To-Go List:', user.wantToGoList);
 });
 
 app.get('/inca', function(req, res) {
@@ -150,6 +153,10 @@ app.post('/registration', async function(req, res) {
 
     await db.collection('myCollection').insertOne({ username: username1, password: password1 });
     console.log("User registered:", username1);
+    await db.collection('myCollection').insertOne({
+      listUsername: username1,
+      wantToGoList: ["Test List"] // Add an empty array for wantToGoList
+    });
 
     res.redirect('/?message=Registered successfully, please login');
     //res.redirect('/');
