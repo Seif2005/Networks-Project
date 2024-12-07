@@ -33,7 +33,7 @@ async function connectToDatabase() {
 connectToDatabase();
 // Session middleware
 app.use(session({
-  secret: 'your_secret_key',
+  secret: 'secret_key',
   resave: false,
   saveUninitialized: true,
   cookie: { secure: false }
@@ -72,9 +72,6 @@ app.get('/hiking', function(req, res) {
 
 app.get('/home', async function(req, res) {
   res.render('home');
-  const user = await db.collection('myCollection').findOne({ listUsername: req.session.username });
-  // Print the wantToGoList in the console
-  console.log('Want-To-Go List:', user.wantToGoList);
 });
 
 app.get('/inca', function(req, res) {
@@ -110,8 +107,12 @@ app.get('/searchresults', function(req, res) {
   res.render('searchresults',{searchResults:searchResults});
 });
 
-app.get('/wanttogo', function(req, res) {
-  res.render('wanttogo');
+app.get('/wanttogo', async function(req, res) {
+  const user = await db.collection('myCollection').findOne({ listUsername: req.session.username });
+  // Print the wantToGoList in the console
+  console.log('Want-To-Go List:', user.wantToGoList);
+  //let testList = ["test1","test2","test3"];
+  res.render('wanttogo',{list:user.wantToGoList});
 });
 
 app.post('/', async function(req, res) {
