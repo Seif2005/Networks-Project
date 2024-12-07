@@ -1,7 +1,9 @@
 //importing packages
 var express = require('express');
 var path = require('path');
+const session = require('express-session');
 var fs = require('fs');
+const { Console } = require('console');
 
 var app = express();
 
@@ -29,6 +31,13 @@ async function connectToDatabase() {
 }
 
 connectToDatabase();
+// Session middleware
+app.use(session({
+  secret: 'secret_key',
+  resave: false,
+  saveUninitialized: true,
+  cookie: { secure: false }
+}));
 //vars to use
 let searchResults = [];
 //helper functions
@@ -61,7 +70,7 @@ app.get('/hiking', function(req, res) {
   res.render('hiking');
 });
 
-app.get('/home', function(req, res) {
+app.get('/home', async function(req, res) {
   res.render('home');
 });
 
@@ -98,8 +107,12 @@ app.get('/searchresults', function(req, res) {
   res.render('searchresults',{searchResults:searchResults});
 });
 
-app.get('/wanttogo', function(req, res) {
-  res.render('wanttogo');
+app.get('/wanttogo', async function(req, res) {
+  const user = await db.collection('myCollection').findOne({ listUsername: req.session.username });
+  // Print the wantToGoList in the console
+  console.log('Want-To-Go List:', user.wantToGoList);
+  //let testList = ["test1","test2","test3"];
+  res.render('wanttogo',{list:user.wantToGoList});
 });
 
 app.post('/', async function(req, res) {
@@ -118,6 +131,8 @@ app.post('/', async function(req, res) {
   }
 
   if (valid != null) { // record is in database
+    req.session.username = username;
+    console.log("Session Username: "+req.session.username);
     res.redirect('home');
   } else { // not logged in
     res.render('login', { error: "Invalid Account!",message:"" });
@@ -139,6 +154,10 @@ app.post('/registration', async function(req, res) {
 
     await db.collection('myCollection').insertOne({ username: username1, password: password1 });
     console.log("User registered:", username1);
+    await db.collection('myCollection').insertOne({
+      listUsername: username1,
+      wantToGoList: ["Test List"] // Add an empty array for wantToGoList
+    });
 
     res.redirect('/?message=Registered successfully, please login');
     //res.redirect('/');
