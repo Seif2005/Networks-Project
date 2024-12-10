@@ -31,6 +31,7 @@ async function connectToDatabase() {
 }
 
 connectToDatabase();
+
 // Session middleware
 app.use(session({
   secret: 'secret_key',
@@ -38,6 +39,7 @@ app.use(session({
   saveUninitialized: true,
   cookie: { secure: false }
 }));
+
 //vars to use
 let searchResults = [];
 //helper functions
@@ -53,6 +55,7 @@ function findSubstring(word, array) {
   }
   return destinations;
 }
+
 
 app.get('/', function(req, res) {
   let message = req.query.message || "";
