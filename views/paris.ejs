@@ -28,6 +28,10 @@
             text-align: justify;
             text-justify: inter-word;
         }
+        .error{
+            color:red;
+            font-size: 30px;
+        }
         .video {
             position: fixed;
             left: 700px;
@@ -41,6 +45,10 @@
             position: fixed;
             left: 30px;
             top: 470px;
+        }
+        .message{
+            color:green;
+            font-size: 30px;
         }
         #my {
             zoom: 110%;
@@ -78,7 +86,13 @@
         It is known as the most romantic city in the world, and is home to some world famous sights that are constantly shown in travel magazines, movies, and other works of art. Paris, the capital of France, has a population of over two million people and is one of Europe's most-visited cities.
     </div>
     <div class="wanttogo">
-        <button id="wanttogo" class="btn btn-secondary ml-3">Add to Want-to-Go List</button>
+        <form action="/addToWantToGo" method="POST">
+            <input type="hidden" name="destination" value="Paris">
+            <input type="hidden" name="currentPage" value="paris" />
+            <button type="submit" class="btn btn-secondary ml-3">Add to Want-to-Go List</button>
+        </form>
+        <div class = "message"><%= message %></div>
+        <div class = "error"><%= error %></div>
     </div>
     <div class="video">
         <iframe width="560" height="315" src="https://www.youtube.com/embed/RaAIE9yRsX0?si=FAXqx_CaOOXDvdxW" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
