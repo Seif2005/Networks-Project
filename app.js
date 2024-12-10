@@ -3,7 +3,7 @@ var express = require('express');
 var path = require('path');
 const session = require('express-session');
 var fs = require('fs');
-const { Console } = require('console');
+const { Console, error } = require('console');
 
 var app = express();
 
@@ -65,7 +65,7 @@ app.get('/registration', function(req, res) {
 
 app.get('/annapurna', function(req, res) {
   if(req.session.logged){
-    res.render('annapurna');
+    res.render('annapurna',{message:"",error:""});
   }else{
     res.redirect("/");
   }
@@ -73,7 +73,7 @@ app.get('/annapurna', function(req, res) {
 
 app.get('/bali', function(req, res) {
   if(req.session.logged){
-    res.render('bali');
+    res.render('bali',{message:"",error:""});
   }else{
     res.redirect("/");
   }
@@ -105,7 +105,7 @@ app.get('/home', async function(req, res) {
 
 app.get('/inca', function(req, res) {
   if(req.session.logged){
-    res.render('inca');
+    res.render('inca',{message:"",error:""});
   }else{
     res.redirect("/");
   }
@@ -121,7 +121,7 @@ app.get('/islands', function(req, res) {
 
 app.get('/paris', function(req, res) {
   if(req.session.logged){
-    res.render('paris');
+    res.render('paris',{message:"",error:""});
   }else{
     res.redirect("/");
   }
@@ -129,7 +129,7 @@ app.get('/paris', function(req, res) {
 
 app.get('/rome', function(req, res) {
   if(req.session.logged){
-    res.render('rome');
+    res.render('rome',{message:"",error:""});
   }else{
     res.redirect("/");
   }
@@ -137,7 +137,7 @@ app.get('/rome', function(req, res) {
 
 app.get('/santorini', function(req, res) {
   if(req.session.logged){
-    res.render('santorini');
+    res.render('santorini',{message:"",error:""});
   }else{
     res.redirect("/");
   }
@@ -154,7 +154,7 @@ app.get('/searchresults', function(req, res) {
 
 app.get('/wanttogo', async function(req, res) {
   if(req.session.logged){
-    const user = await db.collection('myCollection').findOne({ listUsername: req.session.username });
+    const user = await db.collection('myCollection').findOne({ username: req.session.username });
     console.log('Want-To-Go List:', user.wantToGoList);
     res.render('wanttogo',{list:user.wantToGoList});
   }else{
@@ -201,13 +201,9 @@ app.post('/registration', async function(req, res) {
       return res.render('registration', { error: "Username already exists!" });
     }
 
-    await db.collection('myCollection').insertOne({ username: username1, password: password1 });
+    await db.collection('myCollection').insertOne({ username: username1, password: password1 ,wantToGoList:[]});
     console.log("User registered:", username1);
-    await db.collection('myCollection').insertOne({
-      listUsername: username1,
-      wantToGoList: ["Test List"] // Add an empty array for wantToGoList
-    });
-
+    
     res.redirect('/?message=Registered successfully, please login');
     //res.redirect('/');
   } catch (err) {
@@ -273,6 +269,37 @@ app.post('/search',async function (req,res) {
     return res.redirect('/searchresults');
   }
 });
+app.post('/addToWantToGo', async (req, res) => {
+  if (!req.session.logged) {
+      return res.redirect('/');
+  }
+
+  const username = req.session.username;
+  const destination = req.body.destination;
+  const currentPage = req.body.currentPage;
+
+  try {
+    
+    const user = await db.collection('myCollection').findOne({ username: username });
+
+    if (user.wantToGoList.includes(destination)) {
+      const message = `${destination} is already in your Want-To-Go list.`;
+      return res.render(currentPage, { message:"" ,error: message, list: user.wantToGoList });
+    }
+      await db.collection('myCollection').updateOne(
+          { username: username },
+          { $addToSet: { wantToGoList: destination } } 
+      );
+      console.log(`Added ${destination} to ${username}'s Want-To-Go list.`);
+      const message = `Successfully added ${destination} to your Want-To-Go list.`;
+
+      res.render(currentPage, { message: message,error: "", list: user.wantToGoList }); 
+  } catch (err) {
+      console.error("Error updating Want-To-Go list:", err);
+      res.status(500).send("Error updating Want-To-Go list");
+  }
+});
+
 
 //the port
 app.listen(3000, () => {
