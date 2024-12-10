@@ -2,8 +2,6 @@
 var express = require('express');
 var path = require('path');
 const session = require('express-session');
-var fs = require('fs');
-const { Console, error } = require('console');
 
 var app = express();
 
@@ -21,7 +19,7 @@ let client;
 
 async function connectToDatabase() {
     try {
-        client = await MongoClient.connect("mongodb://localhost:27017", { useNewUrlParser: true, useUnifiedTopology: true });
+        client = await MongoClient.connect("mongodb://localhost:27017");
         db = client.db('myDB');
         console.log("Connected to database:", db.databaseName);
     } catch (err) {
@@ -56,7 +54,7 @@ function findSubstring(word, array) {
   return destinations;
 }
 
-
+//pages Get requests
 app.get('/', function(req, res) {
   let message = req.query.message || "";
   res.render('login',{error:"",message});
@@ -154,18 +152,17 @@ app.get('/searchresults', function(req, res) {
   }
 });
 
-
 app.get('/wanttogo', async function(req, res) {
   if(req.session.logged){
     const user = await db.collection('myCollection').findOne({ username: req.session.username });
-    console.log('Want-To-Go List:', user.wantToGoList);
+    //console.log('Want-To-Go List:', user.wantToGoList);
     res.render('wanttogo',{list:user.wantToGoList});
   }else{
     res.redirect("/");
   }
 });
 
-//posts
+//pages Post Requests
 app.post('/', async function(req, res) {
   let username = req.body.username;
   let password = req.body.password;
@@ -192,7 +189,7 @@ app.post('/', async function(req, res) {
 });
 
 app.post('/registration', async function(req, res) {
-  let username1 =req.body.username;
+  let username1 = req.body.username;
   let password1  = req.body.password;
 
   if(!username1 || !password1){
@@ -205,8 +202,8 @@ app.post('/registration', async function(req, res) {
     }
 
     await db.collection('myCollection').insertOne({ username: username1, password: password1 ,wantToGoList:[]});
-    console.log("User registered:", username1);
-    
+    //console.log("User registered:", username1);
+
     res.redirect('/?message=Registered successfully, please login');
     //res.redirect('/');
   } catch (err) {
@@ -282,7 +279,7 @@ app.post('/addToWantToGo', async (req, res) => {
   const currentPage = req.body.currentPage;
 
   try {
-    
+
     const user = await db.collection('myCollection').findOne({ username: username });
 
     if (user.wantToGoList.includes(destination)) {
@@ -291,12 +288,12 @@ app.post('/addToWantToGo', async (req, res) => {
     }
       await db.collection('myCollection').updateOne(
           { username: username },
-          { $addToSet: { wantToGoList: destination } } 
+          { $addToSet: { wantToGoList: destination } }
       );
       console.log(`Added ${destination} to ${username}'s Want-To-Go list.`);
       const message = `Successfully added ${destination} to your Want-To-Go list.`;
 
-      res.render(currentPage, { message: message,error: "", list: user.wantToGoList }); 
+      res.render(currentPage, { message: message,error: "", list: user.wantToGoList });
   } catch (err) {
       console.error("Error updating Want-To-Go list:", err);
       res.status(500).send("Error updating Want-To-Go list");
