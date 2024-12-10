@@ -1,7 +1,9 @@
 //importing packages
 var express = require('express');
 var path = require('path');
+const session = require('express-session');
 var fs = require('fs');
+const { Console } = require('console');
 
 var app = express();
 
@@ -29,6 +31,15 @@ async function connectToDatabase() {
 }
 
 connectToDatabase();
+
+// Session middleware
+app.use(session({
+  secret: 'secret_key',
+  resave: false,
+  saveUninitialized: true,
+  cookie: { secure: false }
+}));
+
 //vars to use
 let searchResults = [];
 //helper functions
@@ -45,63 +56,116 @@ function findSubstring(word, array) {
   return destinations;
 }
 
-app.get('/annapurna', function(req, res) {
-  res.render('annapurna');
-});
-
-app.get('/bali', function(req, res) {
-  res.render('bali');
-});
-
-app.get('/cities', function(req, res) {
-  res.render('cities');
-});
-
-app.get('/hiking', function(req, res) {
-  res.render('hiking');
-});
-
-app.get('/home', function(req, res) {
-  res.render('home');
-});
-
-app.get('/inca', function(req, res) {
-  res.render('inca');
-});
-
-app.get('/islands', function(req, res) {
-  res.render('islands');
-});
 
 app.get('/', function(req, res) {
   let message = req.query.message || "";
   res.render('login',{error:"",message});
 });
 
-app.get('/paris', function(req, res) {
-  res.render('paris');
-});
-
 app.get('/registration', function(req, res) {
   res.render('registration',{error:""});
 });
 
+app.get('/annapurna', function(req, res) {
+  if(req.session.logged){
+    res.render('annapurna');
+  }else{
+    res.redirect("/");
+  }
+});
+
+app.get('/bali', function(req, res) {
+  if(req.session.logged){
+    res.render('bali');
+  }else{
+    res.redirect("/");
+  }
+});
+
+app.get('/cities', function(req, res) {
+  if(req.session.logged){
+    res.render('cities');
+  }else{
+    res.redirect("/");
+  }
+});
+
+app.get('/hiking', function(req, res) {
+  if(req.session.logged){
+    res.render('hiking');
+  }else{
+    res.redirect("/");
+  }
+});
+
+app.get('/home', async function(req, res) {
+  if(req.session.logged){
+    res.render('home');
+  }else{
+    res.redirect("/");
+  }
+});
+
+app.get('/inca', function(req, res) {
+  if(req.session.logged){
+    res.render('inca');
+  }else{
+    res.redirect("/");
+  }
+});
+
+app.get('/islands', function(req, res) {
+  if(req.session.logged){
+    res.render('islands');
+  }else{
+    res.redirect("/");
+  }
+});
+
+app.get('/paris', function(req, res) {
+  if(req.session.logged){
+    res.render('paris');
+  }else{
+    res.redirect("/");
+  }
+});
+
 app.get('/rome', function(req, res) {
-  res.render('rome');
+  if(req.session.logged){
+    res.render('rome');
+  }else{
+    res.redirect("/");
+  }
 });
 
 app.get('/santorini', function(req, res) {
-  res.render('santorini');
+  if(req.session.logged){
+    res.render('santorini');
+  }else{
+    res.redirect("/");
+  }
 });
 
 app.get('/searchresults', function(req, res) {
-  res.render('searchresults',{searchResults:searchResults});
+  if(req.session.logged){
+    res.render('searchresults',{searchResults:searchResults});
+  }else{
+    res.redirect("/");
+  }
 });
 
-app.get('/wanttogo', function(req, res) {
-  res.render('wanttogo');
+
+app.get('/wanttogo', async function(req, res) {
+  if(req.session.logged){
+    const user = await db.collection('myCollection').findOne({ listUsername: req.session.username });
+    console.log('Want-To-Go List:', user.wantToGoList);
+    res.render('wanttogo',{list:user.wantToGoList});
+  }else{
+    res.redirect("/");
+  }
 });
 
+//posts
 app.post('/', async function(req, res) {
   let username = req.body.username;
   let password = req.body.password;
@@ -118,6 +182,9 @@ app.post('/', async function(req, res) {
   }
 
   if (valid != null) { // record is in database
+    req.session.username = username;
+    console.log("Session Username: "+req.session.username);
+    req.session.logged = true;
     res.redirect('home');
   } else { // not logged in
     res.render('login', { error: "Invalid Account!",message:"" });
@@ -139,6 +206,10 @@ app.post('/registration', async function(req, res) {
 
     await db.collection('myCollection').insertOne({ username: username1, password: password1 });
     console.log("User registered:", username1);
+    await db.collection('myCollection').insertOne({
+      listUsername: username1,
+      wantToGoList: ["Test List"] // Add an empty array for wantToGoList
+    });
 
     res.redirect('/?message=Registered successfully, please login');
     //res.redirect('/');
