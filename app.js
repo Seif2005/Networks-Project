@@ -215,7 +215,7 @@ app.post('/registration', async function(req, res) {
 app.post('/search',async function (req,res) {
   //res.redirect('/searchfail');
   let searched = req.body.Search.toLowerCase();
-  let locationsAvailable = ['annapurna','bali','inca','paris','rome','santorini'];
+  let locationsAvailable = ['annapurna circuit','bali island','inca trail to machu picchu','paris','rome','santorini island'];
   let funcRes = findSubstring(searched,locationsAvailable);
   //returns no match
   if(funcRes.length==0){
@@ -226,21 +226,21 @@ app.post('/search',async function (req,res) {
     let singleRes;
     searchResults = [];
     for (let wanted of funcRes){
-      if (wanted === 'annapurna') {
+      if (wanted === 'annapurna circuit') {
         singleRes = {
-          searchResult: "Annapurna",
+          searchResult: "Annapurna Circuit",
           searchedImageSrc: "/annapurna.png",
           goToLocation: "/annapurna"
         };
-      } else if (wanted === 'bali') {
+      } else if (wanted === 'bali island') {
         singleRes = {
-          searchResult: "Bali",
+          searchResult: "Bali Island",
           searchedImageSrc: "/bali.png",
           goToLocation: "/bali"
         };
-      } else if (wanted === 'inca') {
+      } else if (wanted === 'inca trail to machu picchu') {
         singleRes = {
-          searchResult: "Inca",
+          searchResult: "Inca Trail to Machu Picchu",
           searchedImageSrc: "/inca.png",
           goToLocation: "/inca"
         };
@@ -256,9 +256,9 @@ app.post('/search',async function (req,res) {
           searchedImageSrc: "/rome.png",
           goToLocation: "/rome"
         };
-      } else if (wanted === 'santorini') {
+      } else if (wanted === 'santorini island') {
         singleRes = {
-          searchResult: "Santorini",
+          searchResult: "Santorini Island",
           searchedImageSrc: "/santorini.png",
           goToLocation: "/santorini"
         };
